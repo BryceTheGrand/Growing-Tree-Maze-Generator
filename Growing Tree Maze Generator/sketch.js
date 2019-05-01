@@ -265,12 +265,13 @@ function draw() {
         }
 
       }
+      stroke(51);
+  line(width - 1, 0, width - 1, height);
+  line(0, height - 1, width, height - 1);
     }
 
   }  
   
-  line(width - 1, 0, width - 1, height - 1);
-  line(0, height - 1, width - 1, height - 1);
   
 }
 

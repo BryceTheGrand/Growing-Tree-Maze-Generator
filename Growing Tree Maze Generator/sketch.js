@@ -3,7 +3,6 @@ var rows, cols;
 var grid = [];
 var stack = [];
 var sel, mazeSize, showGrid;
-var mode = "random";
 var start, pause, step;
 var keyGen = "newest:100";
 var keys, chance;
@@ -11,7 +10,7 @@ var keys, chance;
 
 function setup() {
 
-  createCanvas(1001, 1001);
+  createCanvas(1000, 1000);
   noLoop();
 
   var textHelp = [];
@@ -54,6 +53,8 @@ function setup() {
   generateKeys();
 
   w = 50;
+  
+  strokeWeight(1);
 
   function modeChange() {
     
@@ -63,8 +64,6 @@ function setup() {
 
     rows = floor(height / w);
     cols = floor(width / w);
-
-    mode = sel.value();
 
     for (let i = 0; i < rows; i++) {
 
@@ -119,7 +118,7 @@ function generateKeys() {
 
   for (let i = 0; i < keyGenInfo.length; i++) {
 
-    keys.push(split(keyGenInfo[i], ':'));
+    keys.push(split(trim(keyGenInfo[i]), ':'));
 
   }
 
@@ -127,7 +126,7 @@ function generateKeys() {
 
   for (let i = 0; i < keys.length; i += 1) {
 
-    sum += int(keys[i][1]);
+    sum += int(trim(keys[i][1]));
 
   }
 
@@ -197,8 +196,10 @@ function getIndex() {
 
 function draw() {
   stroke(51);
-  strokeWeight(1);
   background(255);
+  
+  line(width - 1, 0, width - 1, height - 1);
+  line(0, height - 1, width - 1, height - 1);
 
 
   if (showGrid.value() == "true") {
@@ -222,7 +223,7 @@ function draw() {
 
   }
 
-  let current = stack[getIndex(mode)]; //random, newest, oldest, middle
+  let current = stack[getIndex()]; //random, newest, oldest, middle
 
   if (current) {
 

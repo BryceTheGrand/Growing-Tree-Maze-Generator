@@ -11,7 +11,7 @@ var keys, chance;
 
 function setup() {
 
-  createCanvas(601, 601);
+  createCanvas(1001, 1001);
   noLoop();
 
   var textHelp = [];

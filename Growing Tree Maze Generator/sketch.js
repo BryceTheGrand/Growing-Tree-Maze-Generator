@@ -5,19 +5,22 @@ var stack = [];
 var sel, mazeSize, showGrid;
 var mode = "random";
 var start, pause, step;
-var keyGen = "random";
+var keyGen = "newest:100";
+var keys, chance;
 
 
 function setup() {
 
-  createCanvas(1001, 1001);
+  createCanvas(601, 601);
   noLoop();
 
   var textHelp = [];
-  textHelp[0] = createDiv("Selection Mode: ");
+  textHelp[0] = createDiv("Selection Mode:"); 
   textHelp[0].position(10, height + 52);
   textHelp[1] = createDiv("Cell Size: ");
   textHelp[1].position(10, height + 22);
+  textHelp[2] = createDiv("Possible inputs: \"oldest\", \"newest\", \"middle\", \"random\". Eg. newest:100,random:50,oldest:20)");
+  textHelp[2].position(340, height + 52);
 
   showGrid = createSelect();
   showGrid.position(10, height + 160);
@@ -36,33 +39,24 @@ function setup() {
   step.position(140, height + 100);
   step.mousePressed(() => draw());
 
-  restart = createButton("Restart");
+  restart = createButton("Restart (double click to change selection mode)");
   restart.position(10, height + 135);
   restart.mousePressed(modeChange);
 
-  sel = createSelect();
+  sel = createInput();
   sel.position(150, height + 50);
-  sel.option("random");
-  sel.option("newest");
-  sel.option("oldest");
-  sel.option("middle");
-  sel.option("random/newest : 50/50");
-  sel.option("random/newest : 25/75");
-  sel.option("random/newest : 5/95");
-  sel.option("oldest/newest : 30/70");
   sel.changed(() => keyGen = sel.value());
 
   mazeSize = createInput();
   mazeSize.position(150, height + 20);
   mazeSize.changed(modeChange);
 
-  
-  
-  
+  generateKeys();
 
   w = 50;
 
   function modeChange() {
+    
 
     if (mazeSize.value() != "" && mazeSize.value() > 0 && mazeSize.value() <= 600)
       w = floor(mazeSize.value());
@@ -87,6 +81,8 @@ function setup() {
     stack = [];
 
     stack.push(grid[floor(random(rows))][floor(random(cols))]);
+    
+    generateKeys();
 
   }
 
@@ -112,14 +108,68 @@ function setup() {
 }
 
 
+function generateKeys() {
+
+  if (keyGen != "") {
+  
+  let keyGenInfo = keyGen.split(",");
+  keys = [];
+  chance = [];
+  let sum = 0;
+
+  for (let i = 0; i < keyGenInfo.length; i++) {
+
+    keys.push(split(keyGenInfo[i], ':'));
+
+  }
+
+  print(keys);
+
+  for (let i = 0; i < keys.length; i += 1) {
+
+    sum += int(keys[i][1]);
+
+  }
+
+  for (let i = 0; i < keys.length; i += 1) {
+
+    chance.push(int(keys[i][1]) / sum);
+
+  }
+    
+  }
+
+}
+
+
 function getIndex() {
 
-  if (keyGen == "random") {
+
+  let keyPicked = "";
+
+  let picker = random(1);
+
+  for (let i = 0; i < chance.length; i++) {
+
+    if (picker < chance[i]) {
+
+      keyPicked = keys[i][0];
+      break;
+
+    } else {
+
+      picker -= chance[i];
+
+    }
+
+  }
+
+  if (keyPicked == "random") {
 
     let index = floor(random(stack.length));
     return index;
 
-  } else if (keyGen == "newest") {
+  } else if (keyPicked == "newest") {
 
     let index;
 
@@ -130,94 +180,15 @@ function getIndex() {
 
     return index;
 
-  } else if (keyGen == "oldest") {
+  } else if (keyPicked == "oldest") {
 
     let index = 0;
     return index;
 
-  } else if (keyGen == "middle") {
+  } else if (keyPicked == "middle") {
 
     let index = floor(stack.length / 2);
     return index;
-
-  } else if (keyGen == "random/newest : 50/50") {
-
-    if (random(1) < 0.5) {
-
-      let index = floor(random(stack.length));
-      return index;
-
-    } else {
-
-      let index;
-
-      if (stack.length > 1)
-        index = stack.length - 1;
-      else
-        index = 0;
-
-      return index;
-
-    }
-
-  } else if (keyGen == "random/newest : 25/75") {
-
-    if (random(1) < 0.25) {
-
-      let index = floor(random(stack.length));
-      return index;
-
-    } else {
-
-      let index;
-
-      if (stack.length > 1)
-        index = stack.length - 1;
-      else
-        index = 0;
-
-      return index;
-
-    }
-
-  } else if (keyGen == "random/newest : 5/95") {
-
-    if (random(1) < 0.05) {
-
-      let index = floor(random(stack.length));
-      return index;
-
-    } else {
-
-      let index;
-
-      if (stack.length > 1)
-        index = stack.length - 1;
-      else
-        index = 0;
-
-      return index;
-
-    }
-
-  } else if (keyGen == "oldest/newest : 30/70") {
-
-    if (random(1) < 0.30) {
-
-      return 0;
-
-    } else {
-
-      let index;
-
-      if (stack.length > 1)
-        index = stack.length - 1;
-      else
-        index = 0;
-
-      return index;
-
-    }
 
   }
 
@@ -227,7 +198,7 @@ function getIndex() {
 function draw() {
   stroke(51);
   strokeWeight(1);
-    background(255);
+  background(255);
 
 
   if (showGrid.value() == "true") {
@@ -285,7 +256,7 @@ function draw() {
     if (stack.length == 0) {
 
       noLoop();
-      
+
       print("Finished!\n");
 
       for (let i = 0; i < grid.length; i++) {
@@ -380,7 +351,7 @@ function Cell(row, col) {
   this.show = function() {
 
     stroke(51);
-    
+
     if (!this.visited) this.highlight(51, 51, 51);
 
     if (this.walls[0])

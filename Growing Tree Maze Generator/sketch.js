@@ -197,10 +197,6 @@ function getIndex() {
 function draw() {
   stroke(51);
   background(255);
-  
-  line(width - 1, 0, width - 1, height - 1);
-  line(0, height - 1, width - 1, height - 1);
-
 
   if (showGrid.value() == "true") {
 
@@ -271,8 +267,11 @@ function draw() {
       }
     }
 
-  }
-
+  }  
+  
+  line(width - 1, 0, width - 1, height - 1);
+  line(0, height - 1, width - 1, height - 1);
+  
 }
 
 

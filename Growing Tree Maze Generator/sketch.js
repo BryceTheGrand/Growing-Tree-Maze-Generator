@@ -5,12 +5,13 @@ var stack = [];
 var sel, mazeSize, showGrid;
 var start, pause, step;
 var keyGen = "newest:100";
-var keys, chance;
+var keys, chance, canv;
 
 
 function setup() {
 
-  createCanvas(1000, 1000);
+  canv = createCanvas(1000, 1000);
+  canv.position(1, 1);
   noLoop();
 
   var textHelp = [];

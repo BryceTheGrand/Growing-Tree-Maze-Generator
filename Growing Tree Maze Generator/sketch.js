@@ -266,12 +266,15 @@ function draw() {
         }
 
       }
-      stroke(51);
-  line(width - 1, 0, width - 1, height);
-  line(0, height - 1, width, height - 1);
+      
     }
 
   }  
+  
+  
+      stroke(51);
+  line(cols * w - 1, 0, cols * w - 1, height);
+  line(0, rows * w - 1, width, rows * w - 1);
   
   
 }

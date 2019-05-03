@@ -15,12 +15,12 @@ function setup() {
   noLoop();
 
   var textHelp = [];
-  textHelp[0] = createDiv("Selection Mode:"); 
+  textHelp[0] = createDiv("Selection Mode:");
   textHelp[0].position(10, height + 52);
   textHelp[1] = createDiv("Cell Size: ");
   textHelp[1].position(10, height + 22);
   textHelp[2] = createDiv("Possible inputs: \"oldest\", \"newest\", \"middle\", \"random\". Eg. newest:100,random:50,oldest:20)");
-  textHelp[2].position(340, height + 52);
+  textHelp[2].position(400, height + 52);
 
   showGrid = createSelect();
   showGrid.position(10, height + 160);
@@ -43,22 +43,22 @@ function setup() {
   restart.position(10, height + 135);
   restart.mousePressed(modeChange);
 
-  sel = createInput();
+  sel = createInput("newest:100");
   sel.position(150, height + 50);
   sel.changed(() => keyGen = sel.value());
 
-  mazeSize = createInput();
+  mazeSize = createInput(50);
   mazeSize.position(150, height + 20);
   mazeSize.changed(modeChange);
 
   generateKeys();
 
   w = 50;
-  
+
   strokeWeight(1);
 
   function modeChange() {
-    
+
 
     if (mazeSize.value() != "" && mazeSize.value() > 0 && mazeSize.value() <= 600)
       w = floor(mazeSize.value());
@@ -81,7 +81,7 @@ function setup() {
     stack = [];
 
     stack.push(grid[floor(random(rows))][floor(random(cols))]);
-    
+
     generateKeys();
 
   }
@@ -111,32 +111,34 @@ function setup() {
 function generateKeys() {
 
   if (keyGen != "") {
-  
-  let keyGenInfo = keyGen.split(",");
-  keys = [];
-  chance = [];
-  let sum = 0;
 
-  for (let i = 0; i < keyGenInfo.length; i++) {
+    let keyGenInfo = keyGen.split(",");
+    keys = [];
+    chance = [];
+    let sum = 0;
 
-    keys.push(split(trim(keyGenInfo[i]), ':'));
+    for (let keyGenIndex of keyGenInfo) {
 
-  }
+      keys.push(split(trim(keyGenIndex), ':'));
 
-  print(keys);
+    }
 
-  for (let i = 0; i < keys.length; i += 1) {
 
-    sum += int(trim(keys[i][1]));
+    for (let keyIndex of keys) {
 
-  }
+      sum += int(trim(keyIndex[1]));
 
-  for (let i = 0; i < keys.length; i += 1) {
+    }
 
-    chance.push(int(keys[i][1]) / sum);
 
-  }
+    for (let keyIndex of keys) {
+
+      chance.push(int(keyIndex[1]) / sum);
+
+    }
     
+    print(keys, chance);
+
   }
 
 }
@@ -166,17 +168,14 @@ function getIndex() {
 
   if (keyPicked == "random") {
 
-    let index = floor(random(stack.length));
-    return index;
+    return floor(random(stack.length));
 
   } else if (keyPicked == "newest") {
 
-    let index;
+    let index = 0;
 
     if (stack.length > 1)
       index = stack.length - 1;
-    else
-      index = 0;
 
     return index;
 
@@ -187,11 +186,25 @@ function getIndex() {
 
   } else if (keyPicked == "middle") {
 
-    let index = floor(stack.length / 2);
-    return index;
+    return floor(stack.length / 2);
 
   }
 
+}
+
+
+function drawWalls() {
+  
+ for (let i = 0; i < rows; i++) {
+
+      for (let j = 0; j < cols; j++) {
+
+        grid[i][j].show();
+
+      }
+
+    } 
+  
 }
 
 
@@ -201,22 +214,13 @@ function draw() {
 
   if (showGrid.value() == "true") {
 
-    for (let i = 0; i < stack.length; i++) {
+    for (let cell of stack) {
 
-      stack[i].highlight(150, 255, 200);
-
-    }
-
-
-    for (let i = 0; i < rows; i++) {
-
-      for (let j = 0; j < cols; j++) {
-
-        grid[i][j].show();
-
-      }
+      cell.highlight(200, 100, 100, 150);
 
     }
+
+    drawWalls();    
 
   }
 
@@ -224,7 +228,7 @@ function draw() {
 
   if (current) {
 
-    stack[stack.length - 1].highlight(0, 255, 200);
+    stack[stack.length - 1].highlight(150, 50, 255, 255);
 
     let neighbors = current.getNeighbors();
 
@@ -238,16 +242,7 @@ function draw() {
 
     } else {
 
-      for (let i = 0; i < stack.length; i++) {
-
-        if (stack[i] === current) {
-
-          stack.splice(i, 1);
-          break;
-
-        }
-
-      }
+      stack = stack.filter(cell => cell !== current);
 
     }
 
@@ -256,27 +251,29 @@ function draw() {
       noLoop();
 
       print("Finished!\n");
+      
+      drawWalls();
 
       for (let i = 0; i < grid.length; i++) {
 
         for (let cell of grid[i]) {
 
-          cell.highlight(255, 255, 255);
+          cell.highlight(255, 255, 255, 255);
 
         }
 
       }
-      
+
     }
 
-  }  
-  
-  
-      stroke(51);
+  }
+
+
+  stroke(51);
   line(cols * w - 1, 0, cols * w - 1, height);
   line(0, rows * w - 1, width, rows * w - 1);
-  
-  
+
+
 }
 
 
@@ -357,7 +354,7 @@ function Cell(row, col) {
 
     stroke(51);
 
-    if (!this.visited) this.highlight(51, 51, 51);
+    if (!this.visited) this.highlight(51, 51, 51, 100);
 
     if (this.walls[0])
       line(this.col * w, this.row * w, this.col * w + w, this.row * w);
@@ -374,11 +371,11 @@ function Cell(row, col) {
   }
 
 
-  this.highlight = function(r, g, b) {
+  this.highlight = function(r, g, b, op) {
 
-    fill(r, g, b);
+    fill(r, g, b, op);
     noStroke();
-    rect(this.col * w + 1, this.row * w + 1, w - 1, w - 1);
+    rect(this.col * w + w / 10, this.row * w + w / 10, w - w / 5, w - w / 5);
 
   }
 

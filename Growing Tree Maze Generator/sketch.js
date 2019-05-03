@@ -5,8 +5,8 @@ var stack = [];
 var sel, mazeSize, showGrid;
 var start, pause, step;
 var keyGen = "newest:100";
-var keys, chance, canv;
-
+var keys, chance, canv, saveMaze;
+var mazeCount = 1;
 
 function setup() {
 
@@ -26,6 +26,10 @@ function setup() {
   showGrid.position(10, height + 160);
   showGrid.option("true");
   showGrid.option("false");
+  
+  saveMaze = createButton("Save Maze");
+  saveMaze.position(110, height + 160);
+  saveMaze.mousePressed(() => save(canv, "Maze-" + mazeCount++));
 
   start = createButton("Start");
   start.position(10, height + 100);
